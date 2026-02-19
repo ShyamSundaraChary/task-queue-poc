@@ -180,6 +180,7 @@ pip install -r requirements.txt
 
 ```bash
 sudo service redis-server start
+sudo service redis-server stop # To stop Redis when done
 ```
 
 ---
@@ -191,14 +192,23 @@ Instead of typing long command every time:
 Run:
 
 ```bash
-chmod +x start_worker.sh
-./start_worker.sh
+chmod +x queuing/run_worker.sh
+./queuing/run_worker.sh
 ```
+or
+
+```bash
+bash queuing/run_worker.sh
+```
+
+- This does NOT require execute permission.
+- So no chmod needed ever.
+- This is the simplest fix for your current setup.
 
 This runs:
 
 ```bash
-celery -A celery_worker.celery worker --loglevel=info --concurrency=10
+celery -A queuing.celery_worker.celery_app worker --loglevel=info --concurrency=10 -E
 ```
 
 ---
@@ -214,8 +224,8 @@ python app.py
 ## 4️⃣ Start Flower Monitoring
 
 ```bash
-chmod +x start_flower.sh
-./start_flower.sh
+chmod +x queuing/run_flower.sh
+./queuing/run_flower.sh
 ```
 
 Open in browser:
@@ -265,7 +275,7 @@ Flower allows you to monitor:
 Command:
 
 ```bash
-celery -A celery_worker.celery flower --port=5555
+celery -A queuing.celery_worker.celery_app flower --port=5555
 ```
 
 Access:
@@ -342,8 +352,8 @@ Only if:
 Run multiple worker processes:
 
 ```bash
-celery -A celery_worker.celery worker --loglevel=info --concurrency=10 -n worker1@
-celery -A celery_worker.celery worker --loglevel=info --concurrency=10 -n worker2@
+celery -A queuing.celery_worker.celery_app worker --loglevel=info --concurrency=10 -n worker1@
+celery -A queuing.celery_worker.celery_app worker --loglevel=info --concurrency=10 -n worker2@
 ```
 
 ---
@@ -353,6 +363,30 @@ celery -A celery_worker.celery worker --loglevel=info --concurrency=10 -n worker
 * Deploy workers on multiple servers
 * Use centralized Redis
 * Use load balancer
+
+This is real scaling.
+
+Instead of:
+
+1 machine → 1 worker
+
+
+You do:
+
+Machine A → 10 workers
+Machine B → 10 workers
+Machine C → 10 workers
+
+
+All connected to SAME Redis.
+
+🧠 Why It Works
+
+Redis is centralized broker.
+
+Workers pull tasks independently.
+
+More machines = more throughput.
 
 ---
 

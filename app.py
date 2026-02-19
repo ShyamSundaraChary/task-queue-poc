@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request
-from tasks import generate_report
-from celery_worker import celery
+from queuing.tasks import generate_report
+from queuing.celery_worker import celery_app
 
 app = Flask(__name__)
 
@@ -19,7 +19,7 @@ def generate():
 
 @app.route('/status/<job_id>', methods=['GET'])
 def check_status(job_id):
-    task = celery.AsyncResult(job_id)
+    task = celery_app.AsyncResult(job_id)
 
     response = {
         "job_id": job_id,
@@ -31,4 +31,4 @@ def check_status(job_id):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
