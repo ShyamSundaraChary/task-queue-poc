@@ -1,11 +1,13 @@
 from celery import Celery
 
 BROKER_URL = 'redis://localhost:6379/0'
+BROKER_URL_AMQP = 'amqp://guest:guest@localhost:5672//'
 BACKEND_URL = 'redis://localhost:6379/1'
 
 celery_app = Celery( 
     'celery_worker', # Name of the Celery app
-    broker=BROKER_URL, # Redis broker URL, this is where Celery will look for tasks to execute
+    # broker=BROKER_URL, # Redis broker URL, this is where Celery will look for tasks to execute
+    broker=BROKER_URL_AMQP, # RabbitMQ broker URL, this is where Celery will look for tasks to execute
     backend=BACKEND_URL # Redis backend URL, this is where Celery will store the results of tasks
 )
 
